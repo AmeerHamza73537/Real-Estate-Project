@@ -37,6 +37,9 @@ const Profile = () => {
   const [file, setFile] = useState(undefined)
   const [formData, setFormData] = useState({})
   const [updateSuccess, setUpdateSuccess] = useState(false)
+  const [showListingError, setShowListingError] = useState(false)
+  const [userListings, setUserListings] = useState([])
+  const [showListings, setShowListings] = useState(false)
   const dispatch = useDispatch()
   // console.log(file);
   // useEffect(()=>{
@@ -57,11 +60,12 @@ const Profile = () => {
     console.log(currentUser._id);  
     try {
       dispatch(updateUserStart())
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      const res = await fetch(`http://localhost:3000/api/user/update/${currentUser._id}`, {
         method: 'POST',
         headers:{
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formData) 
       })
       const data = await res.json()
@@ -78,14 +82,15 @@ const Profile = () => {
   const handleDelete = async (e)=>{
     try {
       deleteUserStart()
-      const res = await fetch(`/api/user/delete/${currentUser._id}`,{
-      method: 'DELETE',  
+      const res = await fetch(`http://localhost:3000/api/user/delete/${currentUser._id}`,{
+      method: 'DELETE',
+      credentials: 'include',  
     })
+    const data = await res.json()
     if(data.success === false){
       dispatch(deleteUserFailure(data.message))
       return
     }
-    const data = await res.json()
     dispatch(deleteUserSuccess(data))
     } catch (error) {
       dispatch(deleteUserFailure(error.message))
@@ -95,7 +100,9 @@ const Profile = () => {
   const handleSignOut = async ()=>{
     try {
       dispatch(signOutUserStart())
-      const res = await fetch('/api/auth/sign-out')
+      const res = await fetch('http://localhost:3000/api/auth/sign-out', {
+        credentials: 'include'
+      })
       const data = await res.json()
       if(data.success === false){
         dispatch(deleteUserFailure(data.message))
@@ -105,6 +112,28 @@ const Profile = () => {
     } catch (error) {
       dispatch(deleteUserFailure(error.message))
     }
+  }
+  const handleClickListings = async ()=>{
+    try {
+      setShowListingError(false)
+      const res = await fetch(`http://localhost:3000/api/user/listings/${currentUser._id}`, {
+        credentials: 'include'
+      })
+      const data = await res.json()
+      if(data.success === false){
+        setShowListingError(true)
+        return
+      }
+      setUserListings(data)
+      setShowListings(true)
+    } catch (error) {
+      setShowListingError(true)
+    }
+  }
+
+  const handleHideListings = () => {
+    setShowListings(false)
+    setUserListings([])
   }
 
   return (
@@ -139,6 +168,69 @@ const Profile = () => {
       </div>
       <p className='text-red-700 mt-5'>{error ? error : ''}</p>
       <p className='text-green-700 mt-5'>{updateSuccess ? 'User updated successfully' : ''}</p>
+      
+      {!showListings ? (
+        <button 
+          className='text-green-700 w-full bg-[silver] p-3 rounded-lg uppercase text-center hover:opacity-95 hover:cursor-pointer'
+          onClick={handleClickListings}
+        >
+          <b>Show Listings</b>
+        </button>
+      ) : (
+        <button 
+          className='text-red-700 w-full bg-[silver] p-3 rounded-lg uppercase text-center hover:opacity-95 hover:cursor-pointer'
+          onClick={handleHideListings}
+        >
+          <b>Hide Listings</b>
+        </button>
+      )}
+      
+      <p className='text-red-700 text-center pt-4'>{showListingError ? 'Error Showing Listing' : ''}</p>
+      
+      {showListings && (
+        userListings && userListings.length > 0 ? (
+          <div className='mt-5'>
+            <h2 className='text-2xl font-semibold mb-4 text-center'>Your Listings</h2>
+            <div className='grid grid-cols-1 gap-6'>
+              {userListings.map((listing) => (
+                <Link key={listing._id} to={`/listing/${listing._id}`} className='border rounded-lg overflow-hidden hover:shadow-lg transition-shadow'>
+                  <div className='relative'>
+                    {listing.imageUrls && listing.imageUrls.length > 0 && (
+                      <img 
+                        src={listing.imageUrls[0]} 
+                        alt={listing.name} 
+                        className='w-full h-48 object-cover'
+                      />
+                    )}
+                    <div className='p-4 bg-white'>
+                      <h3 className='text-xl font-semibold text-gray-800'>{listing.name}</h3>
+                      <p className='text-gray-600 text-sm mt-2'>{listing.address}</p>
+                      <div className='mt-3 flex justify-between items-center'>
+                        <span className='text-lg font-bold text-green-700'>
+                          ${listing.regularPrice.toLocaleString()}/month
+                        </span>
+                        <span className={`px-3 py-1 rounded text-sm font-semibold ${listing.type === 'rent' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
+                          {listing.type === 'rent' ? 'Rent' : 'Sale'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className='mt-10 text-center'>
+            <p className='text-gray-600 text-lg mb-4'>You haven't created any listings yet.</p>
+            <Link 
+              to={'/create-listing'} 
+              className='inline-block bg-green-700 text-white px-6 py-3 rounded-lg uppercase hover:opacity-90'
+            >
+              Create Your First Listing
+            </Link>
+          </div>
+        )
+      )}
     </div>
   )
 }

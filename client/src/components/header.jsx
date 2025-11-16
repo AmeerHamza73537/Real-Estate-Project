@@ -8,7 +8,7 @@ const Header = () => {
   console.log(currentUser);
   
   return (
-    <header className='bg-[#0B2C4A] shadow-md'>
+    <header className='bg-[#0A2A43] shadow-md'>
       <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
         <Link to='/'>
           <h1 className="font-bold text-sm sm:text-xl flex flex-wrap">
@@ -29,7 +29,8 @@ const Header = () => {
           </Link>
           <Link to='/profile'>
             { currentUser ? 
-              ( <img className='rounded-full h-7 w-7 object-cover' src={currentUser.avatar} alt="profile" /> ) 
+              // ( <img className='rounded-full h-7 w-7 object-cover' src={currentUser.avatar} alt="profile" /> )
+              (<p className='text-[#FFFFFF] hover:underline'>{currentUser.username}</p>) 
              :( <li className="text-[#FFFFFF] hover:underline">Sign In</li> ) 
             }
           </Link>

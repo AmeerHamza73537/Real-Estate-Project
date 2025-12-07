@@ -27,7 +27,11 @@ export const signin = async(req, res, next)=>{
         const {password: pass, ...rest} = validUser._doc
     // saving the token as a cookie
         res
-        .cookie('access_token', token, {httpOnly: true})
+        .cookie('access_token', token, {
+            httpOnly: true,
+            secure: false, // set to false for localhost (no HTTPS)
+            sameSite: 'lax' // allows cookies to be sent with requests
+        })
         .status(200)
         .json(rest)
     } catch (error) {
@@ -42,7 +46,11 @@ export const google = async (req, res,next)=>{
             const token = jwt.sign({id: user._id}, process.env.JWT_SECRET)
             const { password: pass, ...rest } = user._doc
             res
-                .cookie('access_token', token, {httpOnly: true})
+                .cookie('access_token', token, {
+                    httpOnly: true,
+                    secure: false,
+                    sameSite: 'lax'
+                })
                 .status(200)
                 .json(rest)
         }
@@ -58,7 +66,11 @@ export const google = async (req, res,next)=>{
             await newUser.save()
             const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET)
             const { password: pass, ...rest} = newUser._doc
-            res.cookie('access_cookie', token, {httpOnly: true}).status(200).json(rest)
+            res.cookie('access_token', token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax'
+            }).status(200).json(rest)
         }
     } catch (error) {
         next(error)

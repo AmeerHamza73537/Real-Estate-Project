@@ -70,11 +70,11 @@ const handleSubmit = async (e) => {
       form.append("images", files[i]);
     }
 
-    const res = await fetch("http://localhost:3000/api/listing/create", {
-      method: "POST",
-      credentials: 'include', // This sends cookies automatically
-      body: form, // no content-type header! Browser sets it automatically
-    });
+        const res = await fetch("/api/listing/create", {
+            method: "POST",
+            credentials: 'include', // send cookies via proxy
+            body: form, // no content-type header! Browser sets it automatically
+        });
 
     const data = await res.json();
     setLoading(false);

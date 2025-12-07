@@ -18,6 +18,19 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
         withCredentials: true,
+        configure: (proxy, options) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const setCookie = proxyRes.headers['set-cookie']
+            if (setCookie) {
+              // Remove SameSite and Secure flags in dev so the browser accepts cookies via the proxy
+              proxyRes.headers['set-cookie'] = setCookie.map((cookie) =>
+                cookie
+                  .replace(/;\s*SameSite=[^;]+/i, '')
+                  .replace(/;\s*Secure/i, '')
+              )
+            }
+          })
+        }
       },
     }
   },

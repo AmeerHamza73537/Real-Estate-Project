@@ -2,6 +2,7 @@ import { errorHandler } from "../utils/error.js"
 import bcryptjs from 'bcryptjs'
 import User from '../models/user.js'
 import { error } from "console"
+import Listing from "../models/listing.model.js"
 
 export const test = (req,res)=>{
     res.json('Hello World')
@@ -30,7 +31,7 @@ export const updateUserInfo = async (req, res, next)=>{
         }   
 }
 
-export const deleteUser = async ()=>{
+export const deleteUser = async (req, res, next)=>{
     if(req.user.id !== req.params.id) return next(errorHandler(401, 'You can only delete your own account')) 
     try {
         await User.findByIdAndDelete(req.params.id)
@@ -41,3 +42,15 @@ export const deleteUser = async ()=>{
     }   
 }
 
+export const getUserListing = async (req, res, next)=>{
+    if(req.user.id === req.params.id){
+        try {
+            const listings = await Listing.find({userRef : req.params.id})
+            res.status(200).json(listings)
+        } catch (error) {
+            next(error)
+        }
+    }else{
+        next(errorHandler(401, 'You can only view your listings'))
+    }
+}

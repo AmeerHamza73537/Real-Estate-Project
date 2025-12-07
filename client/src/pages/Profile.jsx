@@ -114,19 +114,35 @@ const Profile = () => {
     }
   }
   const handleClickListings = async ()=>{
+    // Guard: ensure user is loaded
+    if (!currentUser || !currentUser._id) {
+      console.warn('handleClickListings: no currentUser');
+      setShowListingError(true);
+      return;
+    }
+
     try {
       setShowListingError(false)
-      const res = await fetch(`http://localhost:3000/api/user/listings/${currentUser._id}`, {
+      const url = `/api/user/listings/${currentUser._id}`
+      console.log('Fetching listings from', url)
+      const res = await fetch(url, {
         credentials: 'include'
       })
-      const data = await res.json()
-      if(data.success === false){
+
+      console.log('Listings response status:', res.status)
+      if (!res.ok) {
+        const text = await res.text().catch(() => null)
+        console.error('Listings fetch failed:', res.status, text)
         setShowListingError(true)
         return
       }
-      setUserListings(data)
+
+      const data = await res.json()
+      // backend returns array of listings — set directly
+      setUserListings(Array.isArray(data) ? data : [])
       setShowListings(true)
     } catch (error) {
+      console.error('handleClickListings error:', error)
       setShowListingError(true)
     }
   }
@@ -135,6 +151,36 @@ const Profile = () => {
     setShowListings(false)
     setUserListings([])
   }
+
+  const handleDeleteListings = async (listingId)=>{
+    e.preventDefault()
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method:'DELETE',
+        credentials: 'include'
+      })
+      console.log('Delete listing status:', res.status)
+      if (!res.ok) {
+        const t = await res.text().catch(()=>null)
+        console.error('Delete failed:', res.status, t)
+        return
+      }
+      const data = await res.json()
+      if(data.success === false){
+        console.log(data.message);
+        return
+      }
+      // remove the deleted listing from local state
+      setUserListings((prev)=>prev.filter((listing)=> listing._id !== listingId))
+
+    } catch (error) {
+      console.log(error.message);
+      
+    }
+  }
+
+
+
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -215,7 +261,12 @@ const Profile = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="flex flex-row justify-center items-center gap-4">
+                    <button className='text-red-700 uppercase' onClick={()=>handleDeleteListings(listing._id)}>Delete</button>
+                    <button className='text-green-700 uppercase'>Edit</button>
+                  </div>
                 </Link>
+                
               ))}
             </div>
           </div>
@@ -229,6 +280,7 @@ const Profile = () => {
               Create Your First Listing
             </Link>
           </div>
+
         )
       )}
     </div>

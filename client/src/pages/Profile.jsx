@@ -153,7 +153,6 @@ const Profile = () => {
   }
 
   const handleDeleteListings = async (listingId)=>{
-    e.preventDefault()
     try {
       const res = await fetch(`/api/listing/delete/${listingId}`, {
         method:'DELETE',
@@ -178,7 +177,14 @@ const Profile = () => {
       
     }
   }
-
+  const handleEditListings = async()=>{
+    try {
+      
+    } catch (error) {
+      console.log(error.message);
+      
+    }
+  }
 
 
 
@@ -263,7 +269,7 @@ const Profile = () => {
                   </div>
                   <div className="flex flex-row justify-center items-center gap-4">
                     <button className='text-red-700 uppercase' onClick={()=>handleDeleteListings(listing._id)}>Delete</button>
-                    <button className='text-green-700 uppercase'>Edit</button>
+                    <button className='text-green-700 uppercase'onClick={()=>handleEditListings(listing._id)}>Edit</button>
                   </div>
                 </Link>
                 

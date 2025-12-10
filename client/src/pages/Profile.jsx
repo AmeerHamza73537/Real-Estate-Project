@@ -269,7 +269,9 @@ const Profile = () => {
                   </div>
                   <div className="flex flex-row justify-center items-center gap-4">
                     <button className='text-red-700 uppercase' onClick={()=>handleDeleteListings(listing._id)}>Delete</button>
-                    <button className='text-green-700 uppercase'onClick={()=>handleEditListings(listing._id)}>Edit</button>
+                    <Link to={`/update-listing/${listing._id}`}>
+                      <button className='text-green-700 uppercase'>Edit</button>
+                    </Link>
                   </div>
                 </Link>
                 

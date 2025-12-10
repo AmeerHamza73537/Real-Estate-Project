@@ -5,11 +5,9 @@ import { errorHandler } from "../utils/error.js";
 export const createListing = async (req, res, next) => {
   try {
     let imageUrls = [];
-
     // Upload each file to Cloudinary
     for (let file of req.files) {
       const uploadResult = await uploadonCloudinary(file.path);
-
       if (uploadResult) {
         imageUrls.push(uploadResult.secure_url);
       }
@@ -47,7 +45,6 @@ export const editListing = async (req, res, next) =>{
   if(!listing) return next(errorHandler(404, 'Listing not found'))
   const inString = listing.userRef.toString()
   if(inString !== req.user.id) return next(errorHandler(401, 'You can only delete your own listings.'))
-  
   try {
     const updateListing = await Listing.findByIdAndUpdate(
       req.params.id,
@@ -55,6 +52,15 @@ export const editListing = async (req, res, next) =>{
       {new:true},
     )
     res.status(200).json(updateListing)
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+export const getListing = async (req, res, next)=>{
+  try {
+    
   } catch (error) {
     next(error)
   }

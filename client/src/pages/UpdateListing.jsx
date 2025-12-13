@@ -23,6 +23,13 @@ const UpdateListing = () => {
     useEffect(()=>{
         const fetchListing = async ()=>{
             const listingId = params.listingId
+            const res = await fetch(`/api/listing/get/${listingId}`)
+            const data = await res.json()
+            if(data.success === false){
+                console.log(data.message);
+                return
+            }
+            setFormData(data)
         }
         fetchListing()
     }, [])
@@ -77,7 +84,7 @@ const handleSubmit = async (e) => {
       form.append("images", files[i]);
     }
 
-        const res = await fetch("/api/listing/create", {
+        const res = await fetch(`/api/listing/update/${params.listingId}`, {
             method: "POST",
             credentials: 'include', // send cookies via proxy
             body: form, // no content-type header! Browser sets it automatically

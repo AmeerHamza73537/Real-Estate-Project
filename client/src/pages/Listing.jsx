@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
-import {Swiper, SwiperSlide} from 'swiper';
-import SwiperCore from 'swiper';
-import {Navigation} from 'swiper/modules';
-import 'swiper/css/bundle';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
 import {
   FaBath,
   FaBed,
@@ -13,10 +14,9 @@ import {
   FaParking,
   FaShare,
 } from 'react-icons/fa';
+import Contact from "../components/Contact";
 
 export default function Listing() {
-  SwiperCore([Navigation])
-  
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -24,6 +24,14 @@ export default function Listing() {
   const [copied, setCopied] = useState(false);
   const [contact, setContact] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
+
+  const Contact = ({ listing }) => (
+    <div className="p-4 border rounded-lg max-w-md mx-auto">
+      <p className="font-semibold mb-2">Contact landlord about {listing.name}</p>
+      <textarea className="w-full border p-2 rounded mb-2" rows={4} placeholder="Write your message..."></textarea>
+      <button className="bg-slate-700 text-white p-2 rounded">Send (not implemented)</button>
+    </div>
+  );
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -53,12 +61,12 @@ export default function Listing() {
         {error && <p className="text-center my-7 text-2xl">Something went wrong</p>}
         {listing && !loading && !error && (
             <>
-                <Swiper navigation>
-                    {listing.imageUrls.map((url)=>{
+                <Swiper modules={[Navigation]} navigation className="h-[550px]">
+                    {listing.imageUrls.map((url) => (
                         <SwiperSlide key={url}>
-                            <div className="h-[550px]" style={{background:`url(${url}) center no-repeat`, backgroundSize: 'cover'}}></div>
+                            <div className="h-[550px]" style={{ background: `url(${url}) center no-repeat`, backgroundSize: 'cover' }}></div>
                         </SwiperSlide>
-                    })}
+                    ))}
                 </Swiper>
                 <div className='fixed top-[13%] right-[3%] z-10 border rounded-full w-12 h-12 flex justify-center items-center bg-slate-100 cursor-pointer'>
             <FaShare

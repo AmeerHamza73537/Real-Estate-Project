@@ -36,54 +36,86 @@ export default function Header() {
   },[location.search])
 
   return (
-    <header className='bg-[#0A2A43] shadow-md'>
-      <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
-        <Link to='/'>
-          <h1 className="font-bold text-sm sm:text-xl flex flex-wrap">
-            <span className="text-slate-500">Jaidaad</span>
-            <span className="text-slate-700">Becho</span>
-          </h1>
+  <header className="sticky top-0 z-50 bg-gradient-to-r from-[#0A2A43] to-[#0F3C5F] backdrop-blur-xl shadow-lg">
+    <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+
+      {/* Logo */}
+      <Link to="/" className="flex items-center gap-1">
+        <h1 className="text-lg sm:text-2xl font-extrabold tracking-wide">
+          <span className="text-slate-200">Jaidaad</span>
+          <span className="text-white ml-1">Becho</span>
+        </h1>
+      </Link>
+
+      {/* Search Bar */}
+      <form
+        onSubmit={handleSubmit}
+        className="hidden md:flex items-center bg-white/95 rounded-full px-4 py-2 shadow-md w-[380px] focus-within:ring-2 focus-within:ring-slate-400 transition"
+      >
+        <input
+          type="text"
+          placeholder="Search properties, areas..."
+          className="flex-1 bg-transparent outline-none text-sm text-slate-700 placeholder-slate-400"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button className="text-slate-600 hover:text-slate-800 transition">
+          <FaSearch />
+        </button>
+      </form>
+
+      {/* Nav Links */}
+      <ul className="flex items-center gap-6 text-sm font-medium">
+        <Link to="/">
+          <li className="hidden sm:inline text-slate-200 hover:text-white transition">
+            Home
+          </li>
         </Link>
-        <form onSubmit={handleSubmit} className="bg-slate-100 p-3 rounded-lg flex items-center" >
-          <input 
-            type="text" 
-            placeholder='Search...' 
-            className="bg-transparent focus:outline-none w-24 sm:w-64"
-            value={searchTerm}
-            onChange={(e)=>setSearchTerm(e.target.value)}  
-          />
-          <button>
-            <FaSearch className="text-slate-600" />
-          </button>
-        </form>
-        <ul className="flex gap-4">
-          <Link to='/'>
-            <li className="hidden sm:inline text-[#FFFFFF] hover:underline">Home</li>
-          </Link>
-          <Link to='/about'>
-            <li className="hidden sm:inline text-[#FFFFFF] hover:underline">About</li>
-          </Link>
-          <Link to='/profile'>
-            { currentUser ? 
-              // ( <img className='rounded-full h-7 w-7 object-cover' src={currentUser.avatar} alt="profile" /> )
-              (<p className='text-[#FFFFFF] hover:underline'>{currentUser.username}</p>) 
-             :( <li className="text-[#FFFFFF] hover:underline">Sign In</li> ) 
-            }
-          </Link>
-          {/* <li>
-            {currentUser ? (
-              <Link to='/profile'>
-                <img
-                  className='rounded-full h-7 w-7 object-cover'
-                  src={currentUser.avatar || '/default-avatar.png'}
-                  alt="profile"
-                />
-              </Link>
-            ) : (<Link to='/sign-in' className="text-[#FFFFFF] hover:underline"> Sign In </Link>)
-            }
-          </li> */}
-        </ul>
-      </div>
-    </header>
-  )
+
+        <Link to="/about">
+          <li className="hidden sm:inline text-slate-200 hover:text-white transition">
+            About
+          </li>
+        </Link>
+
+        <Link to="/profile">
+          {currentUser ? (
+            <div className="flex items-center gap-2 cursor-pointer group">
+              <div className="h-8 w-8 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center font-bold uppercase">
+                {currentUser.username.charAt(0)}
+              </div>
+              <span className="hidden sm:inline text-slate-200 group-hover:text-white transition">
+                {currentUser.username}
+              </span>
+            </div>
+          ) : (
+            <li className="text-white px-4 py-2 rounded-full bg-slate-700 hover:bg-slate-600 transition">
+              Sign In
+            </li>
+          )}
+        </Link>
+      </ul>
+    </div>
+
+    {/* Mobile Search */}
+    <div className="md:hidden px-4 pb-3">
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center bg-white/95 rounded-full px-4 py-2 shadow-md"
+      >
+        <input
+          type="text"
+          placeholder="Search properties..."
+          className="flex-1 bg-transparent outline-none text-sm"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button className="text-slate-600">
+          <FaSearch />
+        </button>
+      </form>
+    </div>
+  </header>
+)
+
 }

@@ -189,110 +189,200 @@ const Profile = () => {
 
 
   return (
-    <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl font-semibold text-center my-7">
+  <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex justify-center items-start py-10 px-4">
+    
+    <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8">
+
+      {/* Heading */}
+      <h1 className="text-3xl font-bold text-center text-slate-800 mb-8">
         Profile
       </h1>
-      <form onSubmit={handleSubmit}className="flex flex-col gap-4">
-        {/* <input 
-          onChange={(e)=>setFile(e.target.files[0])}
-          type="file" 
-          ref={fileRef} 
-          hidden 
-          accept='image/*'
+
+      {/* Profile Form */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+
+        <input
+          type="text"
+          placeholder="Username"
+          className="border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-slate-600 outline-none"
+          id="username"
+          defaultValue={currentUser.username}
+          onChange={handleChange}
         />
-        <img 
-          onClick={()=> fileRef.current.click()}
-          src={formData.avatar || currentUser.avatar} alt="profile photo" 
-          className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2" 
-        /> */}
-        <input type="text" placeholder='username' className="border p-3 rounded-lg" id='username' defaultValue={currentUser.username} onChange={handleChange}/>
-        <input type="email" placeholder='email' className="border p-3 rounded-lg" id='email' defaultValue={currentUser.email} onChange={handleChange}/>
-        <input type="password" placeholder='password' className="border p-3 rounded-lg" id='password' onChange={handleChange}/>
-        <button disabled={loading}className='bg-slate-900 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled: opacity-80'>
-          {loading ? 'Loading...' : 'Update'}
-        </button>
-        <Link className='bg-green-700 text-white p-3 rounded-lg uppercase text-center hover: opacity-95' to={'/create-listing'}>Create Listing</Link>
-      </form>
-      <div className="flex justify-between mt-5">
-        <span onClick={handleDelete} className="text-red-700 cursor-pointer">Delete Account</span>
-        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">Sign Out</span>
-      </div>
-      <p className='text-red-700 mt-5'>{error ? error : ''}</p>
-      <p className='text-green-700 mt-5'>{updateSuccess ? 'User updated successfully' : ''}</p>
-      
-      {!showListings ? (
-        <button 
-          className='text-green-700 w-full bg-[silver] p-3 rounded-lg uppercase text-center hover:opacity-95 hover:cursor-pointer'
-          onClick={handleClickListings}
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-slate-600 outline-none"
+          id="email"
+          defaultValue={currentUser.email}
+          onChange={handleChange}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-slate-600 outline-none"
+          id="password"
+          onChange={handleChange}
+        />
+
+        <button
+          disabled={loading}
+          className="bg-slate-800 text-white rounded-xl py-3 uppercase font-semibold tracking-wide hover:bg-slate-900 transition disabled:opacity-70"
         >
-          <b>Show Listings</b>
+          {loading ? 'Loading...' : 'Update Profile'}
+        </button>
+
+        <Link
+          to="/create-listing"
+          className="bg-green-700 text-white py-3 rounded-xl uppercase text-center font-semibold hover:bg-green-800 transition"
+        >
+          Create Listing
+        </Link>
+      </form>
+
+      {/* Actions */}
+      <div className="flex justify-between mt-6 text-sm">
+        <span
+          onClick={handleDelete}
+          className="text-red-600 cursor-pointer hover:underline"
+        >
+          Delete Account
+        </span>
+        <span
+          onClick={handleSignOut}
+          className="text-red-600 cursor-pointer hover:underline"
+        >
+          Sign Out
+        </span>
+      </div>
+
+      {/* Messages */}
+      {error && (
+        <p className="text-red-600 text-center mt-4 font-medium">
+          {error}
+        </p>
+      )}
+
+      {updateSuccess && (
+        <p className="text-green-600 text-center mt-4 font-medium">
+          User updated successfully
+        </p>
+      )}
+
+      {/* Show / Hide Listings */}
+      {!showListings ? (
+        <button
+          onClick={handleClickListings}
+          className="mt-8 w-full bg-slate-300 text-green-800 py-3 rounded-xl uppercase font-bold hover:opacity-90 transition"
+        >
+          Show Listings
         </button>
       ) : (
-        <button 
-          className='text-red-700 w-full bg-[silver] p-3 rounded-lg uppercase text-center hover:opacity-95 hover:cursor-pointer'
+        <button
           onClick={handleHideListings}
+          className="mt-8 w-full bg-slate-300 text-red-700 py-3 rounded-xl uppercase font-bold hover:opacity-90 transition"
         >
-          <b>Hide Listings</b>
+          Hide Listings
         </button>
       )}
-      
-      <p className='text-red-700 text-center pt-4'>{showListingError ? 'Error Showing Listing' : ''}</p>
-      
+
+      {showListingError && (
+        <p className="text-red-600 text-center mt-4">
+          Error Showing Listings
+        </p>
+      )}
+
+      {/* Listings */}
       {showListings && (
         userListings && userListings.length > 0 ? (
-          <div className='mt-5'>
-            <h2 className='text-2xl font-semibold mb-4 text-center'>Your Listings</h2>
-            <div className='grid grid-cols-1 gap-6'>
+          <div className="mt-10">
+
+            <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">
+              Your Listings
+            </h2>
+
+            <div className="grid grid-cols-1 gap-6">
               {userListings.map((listing) => (
-                <Link key={listing._id} to={`/listing/${listing._id}`} className='border rounded-lg overflow-hidden hover:shadow-lg transition-shadow'>
-                  <div className='relative'>
-                    {listing.imageUrls && listing.imageUrls.length > 0 && (
-                      <img 
-                        src={listing.imageUrls[0]} 
-                        alt={listing.name} 
-                        className='w-full h-48 object-cover'
-                      />
-                    )}
-                    <div className='p-4 bg-white'>
-                      <h3 className='text-xl font-semibold text-gray-800'>{listing.name}</h3>
-                      <p className='text-gray-600 text-sm mt-2'>{listing.address}</p>
-                      <div className='mt-3 flex justify-between items-center'>
-                        <span className='text-lg font-bold text-green-700'>
-                          ${listing.regularPrice.toLocaleString()}/month
-                        </span>
-                        <span className={`px-3 py-1 rounded text-sm font-semibold ${listing.type === 'rent' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
-                          {listing.type === 'rent' ? 'Rent' : 'Sale'}
-                        </span>
-                      </div>
+                <Link
+                  key={listing._id}
+                  to={`/listing/${listing._id}`}
+                  className="bg-white rounded-xl border shadow-md hover:shadow-xl transition overflow-hidden"
+                >
+                  {listing.imageUrls?.length > 0 && (
+                    <img
+                      src={listing.imageUrls[0]}
+                      alt={listing.name}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+
+                  <div className="p-5">
+                    <h3 className="text-xl font-semibold text-slate-800">
+                      {listing.name}
+                    </h3>
+
+                    <p className="text-slate-600 text-sm mt-1">
+                      {listing.address}
+                    </p>
+
+                    <div className="flex justify-between items-center mt-4">
+                      <span className="text-green-700 text-lg font-bold">
+                        ${listing.regularPrice.toLocaleString()}/month
+                      </span>
+
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold
+                          ${listing.type === 'rent'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-purple-100 text-purple-700'
+                          }`}
+                      >
+                        {listing.type === 'rent' ? 'Rent' : 'Sale'}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex flex-row justify-center items-center gap-4">
-                    <button className='text-red-700 uppercase' onClick={()=>handleDeleteListings(listing._id)}>Delete</button>
+
+                  <div className="flex justify-center gap-6 py-4 border-t">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleDeleteListings(listing._id)
+                      }}
+                      className="text-red-600 uppercase font-semibold hover:underline"
+                    >
+                      Delete
+                    </button>
+
                     <Link to={`/update-listing/${listing._id}`}>
-                      <button className='text-green-700 uppercase'>Edit</button>
+                      <button className="text-green-700 uppercase font-semibold hover:underline">
+                        Edit
+                      </button>
                     </Link>
                   </div>
                 </Link>
-                
               ))}
             </div>
           </div>
         ) : (
-          <div className='mt-10 text-center'>
-            <p className='text-gray-600 text-lg mb-4'>You haven't created any listings yet.</p>
-            <Link 
-              to={'/create-listing'} 
-              className='inline-block bg-green-700 text-white px-6 py-3 rounded-lg uppercase hover:opacity-90'
+          <div className="mt-10 text-center">
+            <p className="text-slate-600 text-lg mb-4">
+              You haven't created any listings yet.
+            </p>
+            <Link
+              to="/create-listing"
+              className="inline-block bg-green-700 text-white px-6 py-3 rounded-xl uppercase font-semibold hover:bg-green-800 transition"
             >
               Create Your First Listing
             </Link>
           </div>
-
         )
       )}
     </div>
-  )
+  </div>
+)
+
 }
 
 export default Profile

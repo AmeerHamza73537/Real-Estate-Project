@@ -54,6 +54,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import ListingItem from '../components/ListingItem'
 export default function Search() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
@@ -71,12 +72,12 @@ export default function Search() {
     useEffect(()=>{
         const urlParams = new URLSearchParams(location.search)
         const searchTermFromUrl = urlParams.get('searchTerm')
-        const typeFromUrl = useParams.get('type')
-        const parkingFromUrl = useParams.get('parking')
-        const furnishedFromUrl = useParams.get('furnished')
-        const offerFromUrl = useParams.get('offer')
-        const sortFromUrl = useParams.get('sort')
-        const orderFromUrl = useParams.get('order')
+        const typeFromUrl = urlParams.get('type')
+        const parkingFromUrl = urlParams.get('parking')
+        const furnishedFromUrl = urlParams.get('furnished')
+        const offerFromUrl = urlParams.get('offer')
+        const sortFromUrl = urlParams.get('sort')
+        const orderFromUrl = urlParams.get('order')
 
         if(
             searchTermFromUrl || typeFromUrl || parkingFromUrl || furnishedFromUrl || offerFromUrl || sortFromUrl || orderFromUrl
@@ -140,101 +141,146 @@ export default function Search() {
         navigate(`/search/${searchQuery}`)
     }
 
-  return (
-    <div className='flex flex-col md:flex-row'>
-      <div className='p-7 border-b-2 md:border-r-2 md:min-h-screen'>
-        <form className='flex flex-col gap-8' onSubmit={handleSubmit}>
-            <div className='flex ites-center gap-2'>
-                <label className='whitespace-nowrap font-semibold'>Search Term:</label>
-                <input 
-                    type="text"
-                    placeholder='Search...'
-                    className='border rounded-lg p-3 w-full'
-                    value={sidebardata.searchTerm}
-                    onChange={handleChange}
-                />
-            </div>
-            <div className="flex gap-2 flex-wrap items-center">
-                <label className='font-semibold'>Type:</label>
-                <input 
-                    type="checkbox" 
-                    id="all" 
-                    className='w-5'
-                    onChange={handleChange}
-                    checked={sidebardata.type === 'all'} 
-                />
-                <span>Rent & Sale</span>
-            </div>
-            <div className="flex gap-2 flex-wrap items-center">
-                <input type="checkbox" id="rent" className='w-5'
-                    onChange={handleChange}
-                    checked={sidebardata.type === 'rent'} 
-                />
-                <span>Rent</span>
-            </div>
-            <div className="flex gap-2 flex-wrap items-center">
-                <input 
-                    type="checkbox" 
-                    id="sale" 
-                    className='w-5'
-                    onChange={handleChange}
-                    checked={sidebardata.type === 'sale'}
-                />
-                <span>Sale</span>
-            </div>
-            <div className="flex gap-2 flex-wrap items-center">
-                <label className='font-semibold'>Amenities:</label>
-                <input 
-                    type="checkbox"
-                    id="offer" 
-                    className='w-5' 
-                    onChange={handleChange}
-                    checked={sidebardata.offer}    
-                />
-                <span>Offer</span>
-            </div>
-            <div className="flex gap-2 flex-wrap items-center">
-                <input 
-                    type="checkbox" 
-                    id="furnished" 
-                    className='w-5'
-                    onChange={handleChange}
-                    checked={sidebardata.furnished}
-                />
-                <span>Furnished</span>
-            </div>
-            <div className="flex gap-2 flex-wrap items-center">
-                <input 
-                    type="checkbox" 
-                    id="parking" 
-                    className='w-5'
-                    onChange={handleChange}
-                    checked={sidebardata.parking }
-                />
-                <span>Parking</span>
-            </div>
-            <div className="flex items-center gap-2">
-                <label className='font-semibold'>Sort:</label>
-                <select 
-                    id="sort_order" 
-                    className='border rounded-lg p-3'
-                    onChange={handleChange}
-                    defaultValue={'created_at_desc'}
-                >
-                    <option value="regularPrice_desc">Price High to Low</option>
-                    <option value="regularPrice_asc">Price Low to High</option>
-                    <option value="createdAt_desc">Latest</option>
-                    <option value="createdAt_asc">Oldest</option>
-                </select>
-            </div>
-            <button className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95'>
-                Search
-            </button>
-        </form>
+return (
+  <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-slate-100 to-slate-200">
+
+    {/* Sidebar */}
+    <aside className="md:w-[340px] w-full bg-white/90 backdrop-blur-xl shadow-xl border-r border-slate-200">
+      
+      {/* Sidebar Header */}
+      <div className="p-6 bg-gradient-to-r from-slate-700 to-slate-800 text-white">
+        <h2 className="text-2xl font-bold tracking-wide">Filter Listings</h2>
+        <p className="text-sm text-slate-200 mt-1">
+          Find your perfect property
+        </p>
       </div>
-      <div className=''>
-        <h1 className='text-3xl font-semibold border-b p-3 text-slate-700 mt-5'>Listing Results:</h1>
+
+      <form className="p-6 flex flex-col gap-8" onSubmit={handleSubmit}>
+
+        {/* Search */}
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <label className="block text-sm font-semibold text-slate-700 mb-2">
+            Search
+          </label>
+          <input
+            type="text"
+            id="searchTerm"
+            placeholder="Location, keyword, area..."
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-slate-600 focus:border-transparent transition"
+            value={sidebardata.searchTerm}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Property Type */}
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">
+            Property Type
+          </h3>
+
+          <div className="space-y-3 text-sm">
+            {[
+              { id: 'all', label: 'Rent & Sale' },
+              { id: 'rent', label: 'Rent' },
+              { id: 'sale', label: 'Sale' },
+            ].map(item => (
+              <label key={item.id} className="flex items-center gap-3 cursor-pointer hover:text-slate-800">
+                <input
+                  type="checkbox"
+                  id={item.id}
+                  className="accent-slate-700 w-4 h-4"
+                  onChange={handleChange}
+                  checked={sidebardata.type === item.id}
+                />
+                {item.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Amenities */}
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">
+            Amenities
+          </h3>
+
+          <div className="space-y-3 text-sm">
+            {[
+              { id: 'offer', label: 'Special Offer' },
+              { id: 'furnished', label: 'Furnished' },
+              { id: 'parking', label: 'Parking Available' },
+            ].map(item => (
+              <label key={item.id} className="flex items-center gap-3 cursor-pointer hover:text-slate-800">
+                <input
+                  type="checkbox"
+                  id={item.id}
+                  className="accent-slate-700 w-4 h-4"
+                  onChange={handleChange}
+                  checked={sidebardata[item.id]}
+                />
+                {item.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Sort */}
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <label className="block text-sm font-semibold text-slate-700 mb-2">
+            Sort Results
+          </label>
+          <select
+            id="sort_order"
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-slate-600 transition"
+            onChange={handleChange}
+            defaultValue="created_at_desc"
+          >
+            <option value="regularPrice_desc">Price: High → Low</option>
+            <option value="regularPrice_asc">Price: Low → High</option>
+            <option value="createdAt_desc">Newest Listings</option>
+            <option value="createdAt_asc">Oldest Listings</option>
+          </select>
+        </div>
+
+        {/* Button */}
+        <button className="mt-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white py-4 rounded-xl font-bold tracking-wide uppercase shadow-lg hover:scale-[1.02] hover:shadow-xl transition hover:cursor-pointer">
+          Search Properties
+        </button>
+      </form>
+    </aside>
+
+    {/* Results Section */}
+    <section className="flex-1 p-8">
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-6">
+        
+        <div className="flex items-center justify-between border-b pb-4 mb-6">
+          <h1 className="text-3xl font-bold text-slate-800">
+            Listing Results
+          </h1>
+          <span className="text-sm text-slate-500">
+            Showing matching properties
+          </span>
+        </div>
+
+        {/* Empty State */}
+        {!loading && listings.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-72 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-400">
+          <p className="text-lg font-semibold">No listings yet</p>
+          <p className="text-sm mt-1">
+            Search to see available properties
+          </p>
+        </div>
+        )}
+        {!loading && listings && 
+          listings.map((listing)=>(
+            <ListingItem key={listing._id} listing={listing}/>
+          )
+        )}
+
       </div>
-    </div>
-  )
+    </section>
+
+  </div>
+)
+
 }

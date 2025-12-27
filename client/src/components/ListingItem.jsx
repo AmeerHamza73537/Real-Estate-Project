@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { MdLocationOn } from "react-icons/md";
 
 export default function ListingItem({ listing }) {
+  const imageUrl = listing?.imageUrls?.[0] || listing?.images?.[0] || '/placeholder.svg';
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden">
       <Link to={`/listing/${listing._id}`} className="block h-full">
         {/* Image */}
         <div className="h-52 w-full overflow-hidden relative">
           <img
-            src={listing.imageUrls[0]}
+            src={imageUrl}
             alt="listing cover"
             className="h-full w-full object-cover hover:scale-110 transition-transform duration-500"
           />

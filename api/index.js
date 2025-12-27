@@ -7,6 +7,11 @@ import cookieParser from 'cookie-parser'
 import listingRouter from './Routes/listing.route.js'
 import cors from 'cors'
 
+import upload from "./middleware/multer.js";
+// import path from 'path';
+// import { fileURLToPath } from 'url';
+// import uploadRoutes from './Routes/upload.route.js';
+// import ConnectDb from './config/mongodb.js';
 
 dotenv.config()
 mongoose.connect(process.env.MONGO).then(()=>{
@@ -47,8 +52,26 @@ app.use((err,req,res,next)=>{
     })
 })
 
+
+
+app.post("/api/upload", upload.array("images", 6), async (req, res) => {
+  try {
+    console.log("req.files:", req.files);
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
+    }
+
+    const urls = req.files.map(f => f.path || f.location);
+    res.json({ urls });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Upload failed" });
+  }
+});
+
+
+
+
 app.listen(3000, ()=>{
     console.log("Server is running on port 3000");
 })
-
- 

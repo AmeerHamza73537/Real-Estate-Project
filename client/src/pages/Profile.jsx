@@ -310,14 +310,16 @@ const Profile = () => {
                   to={`/listing/${listing._id}`}
                   className="bg-white rounded-xl border shadow-md hover:shadow-xl transition overflow-hidden"
                 >
-                  {listing.imageUrls?.length > 0 && (
+                  {(listing.imageUrls?.length > 0 || listing.images?.length > 0) ? (
                     <img
-                      src={listing.imageUrls[0]}
+                      src={listing?.imageUrls?.[0] || listing?.images?.[0] || '/placeholder.svg'}
                       alt={listing.name}
                       className="w-full h-48 object-cover"
                     />
-                  )}
-
+                  ) : (
+                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-sm text-gray-500">No image</div>
+                  )
+                }
                   <div className="p-5">
                     <h3 className="text-xl font-semibold text-slate-800">
                       {listing.name}

@@ -64,10 +64,7 @@ const handleSubmit = async (e) => {
       return setError('Discounted price cannot be greater than regular price');
     }
 
-    if (files.length === 0) {
-      return setError('Please upload at least one image');
-    }
-
+    // Allow updates without uploading new images
     setLoading(true);
     setError(false);
 
@@ -76,10 +73,16 @@ const handleSubmit = async (e) => {
 
     // append text fields
     for (let key in formData) {
+      if (key === 'images') continue; // skip file placeholder
+      if (key === 'imageUrls') {
+        // send remaining imageUrls as JSON so backend can parse it reliably
+        form.append('imageUrls', JSON.stringify(formData.imageUrls || []));
+        continue;
+      }
       form.append(key, formData[key]);
     }
 
-    // append images from files state
+    // append images from files state (if user selected new files)
     for (let i = 0; i < files.length; i++) {
       form.append("images", files[i]);
     }
@@ -180,6 +183,27 @@ const handleSubmit = async (e) => {
                             onChange={(e) => setFiles(e.target.files)}
                         />
                     </div>
+
+                    {/* Existing images preview (from fetched listing) */}
+                    {formData.imageUrls && formData.imageUrls.length > 0 && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">Current images:</p>
+                        <div className="flex gap-2 flex-wrap">
+                          {formData.imageUrls.map((url, idx) => (
+                            <div key={idx} className="relative">
+                              <img src={url} alt={`img-${idx}`} className="h-20 w-20 object-cover rounded border" />
+                              <button type="button" onClick={() => {
+                                // Remove image locally and send updated imageUrls on submit; no server-side deletion
+                                const newUrls = [...formData.imageUrls];
+                                newUrls.splice(idx, 1);
+                                setFormData({...formData, imageUrls: newUrls});
+                              }} className="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full px-2">x</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {files.length > 0 && (
                         <div>
                             <p className="text-sm text-gray-600 mb-2">Selected images: {files.length}/6</p>

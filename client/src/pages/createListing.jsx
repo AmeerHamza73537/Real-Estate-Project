@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom'
 const CreateListing = () => {
     const navigate = useNavigate()
     const [files, setFiles] = useState([]);
+    const [previewUrls, setPreviewUrls] = useState([]);
     const [error, setError] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [imageUploadError, setImageUploadError] = useState("");
+    const [uploading, setUploading] = useState(false);
     const [formData, setFormData] = useState({
+        imageUrls: [],
         name: '',
         description: '', 
         address: '',
@@ -19,6 +23,54 @@ const CreateListing = () => {
         furnished: false,
     })
     console.log(formData);
+
+    // ✅ Upload handler (Cloudinary)
+  const handleImageSubmit = async () => {
+    if (files.length === 0) return setImageUploadError("Please select an image first");
+
+    if (files.length + formData.imageUrls.length > 6) {
+      return setImageUploadError("You can only upload up to 6 images");
+    }
+
+    setUploading(true);
+    setImageUploadError("");
+
+    try {
+      const uploadPromises = files.map((file) => storeImage(file));
+      const urls = await Promise.all(uploadPromises);
+
+      setFormData((prev) => ({
+        ...prev,
+        imageUrls: prev.imageUrls.concat(urls),
+      }));
+
+      setUploading(false);
+    } catch (err) {
+      console.error("Upload error:", err);
+      setImageUploadError(err.message.includes("File too large") 
+    ? "Each image must be under 10MB" 
+    : "Image upload failed");
+    }
+  };
+
+
+  // ✅ Upload single image to backend → backend uploads to Cloudinary
+  const storeImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch("http://localhost:3000/api/upload", {
+      method: "POST",
+      body: formData,
+      credentials: "include", // 👈 include cookies for auth if required
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Upload failed");
+    return data.urls ? data.urls[0] : data.url;
+  };
+
+
     
 const handleChange = (e) =>{
     if(e.target.id === 'sale' || e.target.id === 'rent'){
@@ -84,6 +136,10 @@ const handleSubmit = async (e) => {
       return;
     }
 
+    // Store returned imageUrls locally so we can show confirmation if needed
+    setFormData((prev) => ({ ...prev, imageUrls: data.imageUrls || [] }));
+
+    // Go to newly created listing
     navigate(`/listing/${data._id}`);
   } catch (error) {
     console.log(error);
@@ -152,7 +208,7 @@ const handleSubmit = async (e) => {
                     
                 </div>
             </div>
-            <div className="flex flex-col flex-1 gap-4">
+            {/* <div className="flex flex-col flex-1 gap-4">
                     <p className="font-semibold">
                         <span className="font-normal text-gray-600 ml-2">The first image will be the cover(max 6)</span>
                     </p>
@@ -163,17 +219,23 @@ const handleSubmit = async (e) => {
                             id='images' 
                             accept='image/*' 
                             multiple 
-                            onChange={(e) => setFiles(e.target.files)}
+                            onChange={(e) => {
+                              const fileList = e.target.files;
+                              setFiles(fileList);
+                              // create preview urls to show immediately
+                              const urls = Array.from(fileList).map((f) => URL.createObjectURL(f));
+                              setPreviewUrls(urls);
+                            }}
                         />
                     </div>
-                    {files.length > 0 && (
+                    {previewUrls.length > 0 && (
                         <div>
-                            <p className="text-sm text-gray-600 mb-2">Selected images: {files.length}/6</p>
+                            <p className="text-sm text-gray-600 mb-2">Selected images: {previewUrls.length}/6</p>
                             <div className="flex gap-2 flex-wrap">
-                                {Array.from(files).map((file, idx) => (
+                                {previewUrls.map((url, idx) => (
                                     <div key={idx} className="relative">
                                         <img 
-                                            src={URL.createObjectURL(file)} 
+                                            src={url} 
                                             alt="preview" 
                                             className="h-20 w-20 object-cover rounded border"
                                         />
@@ -187,8 +249,62 @@ const handleSubmit = async (e) => {
                         {loading ? 'Creating...' : 'Create Listing'}
                     </button>
                     {error && <p className='text-red-700 text-sm'>{error}</p>}
-                </div>
-                
+                </div> */}
+                <div className="flex flex-col flex-1 gap-4">
+          <p className="font-semibold">
+            Images:
+            <span className="font-normal text-gray-600 ml-2">
+              The first image will be the cover (max 6)
+            </span>
+          </p>
+
+          <div className="flex gap-4">
+            <input
+              onChange={(e) => setFiles(Array.from(e.target.files))}
+              className="p-3 border border-gray-300 rounded w-full"
+              type="file"
+              id="images"
+              accept="image/*"
+              multiple
+            />
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={handleImageSubmit}
+              className="p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80"
+            >
+              {uploading ? "Uploading..." : "Upload"}
+            </button>
+          </div>
+
+          {imageUploadError && <p className="text-red-700 text-sm">{imageUploadError}</p>}
+
+          {formData.imageUrls.map((url, index) => (
+            <div key={url} className="flex justify-between p-3 border items-center">
+              <img
+                src={url}
+                alt="listing"
+                className="w-20 h-20 object-contain rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveImage(index)}
+                className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+
+          <button
+            disabled={loading || uploading}
+            className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+          >
+            {loading ? "Creating..." : "Create listing"}
+          </button>
+
+          {error && <p className="text-red-700 text-sm">{error}</p>}
+        </div>
         </form>
         
     </main>
